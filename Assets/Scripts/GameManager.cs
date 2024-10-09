@@ -1,10 +1,11 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.SceneManagement;
 using TMPro;
+
 
 public class GameManager : MonoBehaviour
 {
@@ -28,7 +29,7 @@ public class GameManager : MonoBehaviour
 
     public int firstNum = 0, secondNum = 0, powerNum = 0;
 
-    public float toleranceNum = 0f;
+    public float toleranceNum = 1f;
 
     private void Awake()
     {
@@ -221,11 +222,80 @@ public class GameManager : MonoBehaviour
         int ohmValue = receivedNum * multiplier;
         int ohmKiloValue = ohmValue / 1000;
         int ohmOtherValue = ohmValue % 1000;
-        print(ohmKiloValue); //K'den �nceki k�s�m
-        print(ohmOtherValue); //K'den sonraki k�s�m
 
         resultPanel.GetComponent<CanvasGroup>().DOFade(1f, .5f);
-        resultPanel.GetComponent<RectTransform>().DOScale(1f, .5f);
+        resultPanel.GetComponent<RectTransform>().DOScale(1f, .5f).SetEase(Ease.OutBack);
+
+        string ohmKiloStr = ohmKiloValue.ToString("N0", new System.Globalization.CultureInfo("tr-TR"));
+
+        if (ohmOtherValue == 0)
+        {
+            ohmTxt.text = $"{ohmKiloStr}K Ω";   
+        }
+        else
+        {
+            ohmTxt.text = $"{ohmKiloStr}K{ohmOtherValue} Ω";
+        }
+
+
+        int counter = 0;
+        if(toleranceNum % 1 == 0)
+        {
+            int realTolerance = (ohmValue * (int)toleranceNum) / 100;
+
+            int minToleranceValue = ohmValue - realTolerance;
+            int maxToleranceValue = ohmValue + realTolerance;
+
+            int minToleranceKiloValue = minToleranceValue / 1000;
+            int minToleranceOtherValue = minToleranceValue % 1000;
+
+            int maxToleranceKiloValue = maxToleranceValue / 1000;
+            int maxToleranceOtherValue = maxToleranceValue % 1000;
+
+            string minToleranceKiloStr = minToleranceKiloValue.ToString("N0", new System.Globalization.CultureInfo("tr-TR"));
+            string maxToleranceKiloStr = maxToleranceKiloValue.ToString("N0", new System.Globalization.CultureInfo("tr-TR"));
+
+            if(minToleranceOtherValue == 0)
+            {
+                tolerancedOhmTxt.text = $"{minToleranceKiloStr}K Ω - {maxToleranceKiloStr}K Ω";
+            }
+            else
+            {
+                tolerancedOhmTxt.text = $"{minToleranceKiloStr}K{minToleranceOtherValue} Ω - {maxToleranceKiloStr}K{maxToleranceOtherValue} Ω";
+            }
+
+        }
+        else if (toleranceNum % 1 != 0)
+        {
+            while (toleranceNum % 1 != 0)
+            {
+                counter++;
+                toleranceNum *= 10;
+            }
+
+            int realTolerance = (ohmValue * (int)toleranceNum) / (100 * (int)Mathf.Pow(10, counter));
+
+            int minToleranceValue = ohmValue - realTolerance;
+            int maxToleranceValue = ohmValue + realTolerance;
+
+            int minToleranceKiloValue = minToleranceValue / 1000;
+            int minToleranceOtherValue = minToleranceValue % 1000;
+            
+            int maxToleranceKiloValue = maxToleranceValue / 1000;
+            int maxToleranceOtherValue = maxToleranceValue % 1000;
+
+            string minToleranceKiloStr = minToleranceKiloValue.ToString("N0", new System.Globalization.CultureInfo("tr-TR"));
+            string maxToleranceKiloStr = maxToleranceKiloValue.ToString("N0", new System.Globalization.CultureInfo("tr-TR"));
+
+            if (minToleranceOtherValue == 0)
+            {
+                tolerancedOhmTxt.text = $"{minToleranceKiloStr}K Ω - {maxToleranceKiloStr}K Ω";
+            }
+            else
+            {
+                tolerancedOhmTxt.text = $"{minToleranceKiloStr}K{minToleranceOtherValue} Ω - {maxToleranceKiloStr}K{maxToleranceOtherValue} Ω";
+            }
+        }
     }
 
     public void CalculateAgainFonx()
@@ -236,6 +306,16 @@ public class GameManager : MonoBehaviour
     public void MainMenuFonx()
     {
         SceneManager.LoadScene("mainMenuScene");
+    }
+
+    public void ConvertionFonx(string name)
+    {
+        AudioManager.instance.PlaySoundFonx(name);
+    }
+
+    public void ConvertionPaintFonx(string name)
+    {
+        AudioManager.instance.PlayRandomPitchFonx(name);
     }
 
 }

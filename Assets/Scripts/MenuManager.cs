@@ -1,18 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
+using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField]
+    GameObject startGameButton;
+
+    [SerializeField]
+    RawImage bg;
+
+    [SerializeField]
+    float x, y;
+
+    private void Start()
     {
-        
+        startGameButton.GetComponent<CanvasGroup>().DOFade(1, .5f);
+        startGameButton.GetComponent<RectTransform>().DOScale(.75f, .5f).SetEase(Ease.OutBack);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        
+        bg.uvRect = new Rect(bg.uvRect.position + new Vector2(x, y) * Time.deltaTime, bg.uvRect.size);
     }
 }
